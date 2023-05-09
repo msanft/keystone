@@ -12,7 +12,7 @@ RUN apt -y install autoconf automake autotools-dev bc \
     device-tree-compiler expect makeself unzip cpio rsync cmake ninja-build p7zip-full
 
 RUN apt-get update && apt-get install --reinstall ca-certificates
-RUN git clone https://github.com/keystone-enclave/keystone /keystone
+RUN git clone https://github.com/msanft/keystone /keystone
 RUN cd /keystone && \
     git checkout $CHECKOUT && \
     rmdir linux qemu buildroot && \
