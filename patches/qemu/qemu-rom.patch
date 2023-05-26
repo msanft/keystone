@@ -1,4 +1,4 @@
-diff --git a/hw/riscv/boot.c b/hw/riscv/boot.c
+diff --git hw/riscv/boot.c hw/riscv/boot.c
 index 52bf8e67de2..72162251020 100644
 --- a/hw/riscv/boot.c
 +++ b/hw/riscv/boot.c
