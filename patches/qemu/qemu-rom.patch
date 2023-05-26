@@ -1,7 +1,7 @@
 diff --git hw/riscv/boot.c hw/riscv/boot.c
 index 52bf8e67de2..72162251020 100644
---- a/hw/riscv/boot.c
-+++ b/hw/riscv/boot.c
+--- hw/riscv/boot.c
++++ hw/riscv/boot.c
 @@ -31,6 +31,7 @@
  #include "sysemu/qtest.h"
  #include "sysemu/kvm.h"
@@ -130,10 +130,10 @@ index 52bf8e67de2..72162251020 100644
  }
 
  void riscv_setup_direct_kernel(hwaddr kernel_addr, hwaddr fdt_addr)
-diff --git a/hw/riscv/virt.c b/hw/riscv/virt.c
+diff --git hw/riscv/virt.c hw/riscv/virt.c
 index 4e3efbee16f..56053a91d1f 100644
---- a/hw/riscv/virt.c
-+++ b/hw/riscv/virt.c
+--- hw/riscv/virt.c
++++ hw/riscv/virt.c
 @@ -76,7 +76,7 @@
 
  static const MemMapEntry virt_memmap[] = {
@@ -174,10 +174,10 @@ index 4e3efbee16f..56053a91d1f 100644
  }
 
  static const TypeInfo virt_machine_typeinfo = {
-diff --git a/include/hw/riscv/virt.h b/include/hw/riscv/virt.h
+diff --git include/hw/riscv/virt.h include/hw/riscv/virt.h
 index e5c474b26eb..474a67ed9de 100644
---- a/include/hw/riscv/virt.h
-+++ b/include/hw/riscv/virt.h
+--- include/hw/riscv/virt.h
++++ include/hw/riscv/virt.h
 @@ -56,6 +56,7 @@ struct RISCVVirtState {
      bool have_aclint;
      RISCVVirtAIAType aia_type;
