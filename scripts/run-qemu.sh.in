@@ -31,4 +31,8 @@ done;
  -netdev user,id=net0,net=192.168.100.1/24,dhcpstart=192.168.100.128,hostfwd=tcp::${HOST_PORT}-:22 \
  -device virtio-net-device,netdev=net0 \
  -device virtio-rng-pci \
+ -chardev socket,id=chrtpm,path=swtpm-sock \
+ -tpmdev emulator,id=tpm0,chardev=chrtpm \
+ -device tpm-tis-device,tpmdev=tpm0 \
  -smp $SMP
+
