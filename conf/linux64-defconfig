@@ -1444,6 +1444,7 @@ CONFIG_HW_RANDOM_VIRTIO=y
 # CONFIG_APPLICOM is not set
 # CONFIG_RAW_DRIVER is not set
 CONFIG_TCG_TPM=y # TPM support
+# CONFIG_HW_RANDOM_TPM=y for TPM randomness in /dev/hwrng
 CONFIG_DEVPORT=y
 # CONFIG_XILLYBUS is not set
 # end of Character devices
