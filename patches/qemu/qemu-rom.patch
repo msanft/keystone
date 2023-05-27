@@ -1,5 +1,5 @@
 diff --git hw/riscv/boot.c hw/riscv/boot.c
-index 52bf8e67de2..72162251020 100644
+index 52bf8e67de2..57fcf0e39cc 100644
 --- hw/riscv/boot.c
 +++ hw/riscv/boot.c
 @@ -31,6 +31,7 @@
@@ -79,18 +79,6 @@ index 52bf8e67de2..72162251020 100644
 -         */
 -        reset_vec[2] = 0x00000013;   /*     addi   x0, x0, 0 */
 -    }
-+        if (!harts->harts[0].cfg.ext_icsr) {
-+            /*
-+            * The Zicsr extension has been disabled, so let's ensure we don't
-+            * run the CSR instruction. Let's fill the address with a non
-+            * compressed nop.
-+            */
-+            reset_vec[2] = 0x00000013;   /*     addi   x0, x0, 0 */
-+        }
-
--    /* copy in the reset vector in little_endian byte order */
--    for (i = 0; i < ARRAY_SIZE(reset_vec); i++) {
--        reset_vec[i] = cpu_to_le32(reset_vec[i]);
 +        /* reset vector */
 +        uint32_t reset_vec[10] = {
 +            0x00000297,                  /* 1:  auipc  t0, %pcrel_hi(fw_dyn) */
@@ -111,6 +99,18 @@ index 52bf8e67de2..72162251020 100644
 +        } else {
 +            reset_vec[3] = 0x0202b583;   /*     ld     a1, 32(t0) */
 +            reset_vec[4] = 0x0182b283;   /*     ld     t0, 24(t0) */
++        }
+
+-    /* copy in the reset vector in little_endian byte order */
+-    for (i = 0; i < ARRAY_SIZE(reset_vec); i++) {
+-        reset_vec[i] = cpu_to_le32(reset_vec[i]);
++        if (!harts->harts[0].cfg.ext_icsr) {
++            /*
++            * The Zicsr extension has been disabled, so let's ensure we don't
++            * run the CSR instruction. Let's fill the address with a non
++            * compressed nop.
++            */
++            reset_vec[2] = 0x00000013;   /*     addi   x0, x0, 0 */
 +        }
 +
 +        /* copy in the reset vector in little_endian byte order */
