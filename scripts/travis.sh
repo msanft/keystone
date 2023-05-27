@@ -15,5 +15,6 @@ then
   exit 0
 else
   echo "[FAIL] output.log does not match with the expected output"
+  echo $(diff output.log $EXPECTED_LOG_DIR/test-qemu.expected.log)
   exit 1
 fi
