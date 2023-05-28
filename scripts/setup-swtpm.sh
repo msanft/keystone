@@ -11,7 +11,7 @@ sudo apt-get install dh-autoreconf libssl-dev \
      libtasn1-6-dev pkg-config libtpms-dev \
      net-tools iproute2 libjson-glib-dev \
      libgnutls28-dev expect gawk socat \
-     libseccomp-dev make -y
+     libseccomp-dev make libtasn1-devel -y
 
 cd swtpm
 
