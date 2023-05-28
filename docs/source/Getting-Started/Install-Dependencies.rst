@@ -14,7 +14,8 @@ Ubuntu
   gperf libgmp-dev libmpc-dev libmpfr-dev libtool texinfo tmux \
   patchutils zlib1g-dev wget bzip2 patch vim-common lbzip2 python3 \
   pkg-config libglib2.0-dev libpixman-1-dev libssl-dev screen \
-  device-tree-compiler expect makeself unzip cpio rsync cmake ninja-build p7zip-full
+  device-tree-compiler expect makeself unzip cpio rsync cmake \
+  ninja-build p7zip-full libslirp-dev
 
 .. note::
   You need Git version >= 2.11.0 to use ``./fast-setup.sh``, because the script uses
