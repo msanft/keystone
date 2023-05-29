@@ -56,3 +56,6 @@ BR2_PACKAGE_DROPBEAR=y
 
 # Extra TPM tools
 BR2_PACKAGE_TPM2_TOOLS=y
+
+# Device tree debugging
+BR2_PACKAGE_DTC=y
