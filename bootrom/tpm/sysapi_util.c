@@ -9,7 +9,6 @@
 #include <config.h>
 #endif
 
-#include <stddef.h>
 #include <string.h>
 
 #include "tss2_mu.h"

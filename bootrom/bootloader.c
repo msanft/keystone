@@ -21,7 +21,7 @@
   types: sha3_context
 */
 
-#include "string.h"
+#include "custom_string.h"
 /*
   provides memcpy, memset
 */
