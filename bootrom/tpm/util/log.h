@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "util/aux_util.h"
+#include "aux_util.h"
 
 #ifndef LOGMODULE
 #error "LOGMODULE must be set before including log/log.h"
