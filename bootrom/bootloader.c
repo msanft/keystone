@@ -104,8 +104,6 @@ void bootloader()
   // Erase SK_D
   memset((void *)sanctum_dev_secret_key, 0, sizeof(*sanctum_dev_secret_key));
 
-  print("test");
-
   // caller will clean core state and memory (including the stack), and boot.
   return;
 }
