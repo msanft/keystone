@@ -25,11 +25,21 @@ extern byte sanctum_sm_secret_key[PRIVATE_KEY_SIZE];
 extern byte sanctum_sm_public_key[PUBLIC_KEY_SIZE];
 extern byte sanctum_dev_public_key[PUBLIC_KEY_SIZE];
 
-byte sm_hash[MDSIZE] = { 0, };
-byte sm_signature[SIGNATURE_SIZE] = { 0, };
-byte sm_public_key[PUBLIC_KEY_SIZE] = { 0, };
-byte sm_private_key[PRIVATE_KEY_SIZE] = { 0, };
-byte dev_public_key[PUBLIC_KEY_SIZE] = { 0, };
+byte sm_hash[MDSIZE] = {
+    0,
+};
+byte sm_signature[SIGNATURE_SIZE] = {
+    0,
+};
+byte sm_public_key[PUBLIC_KEY_SIZE] = {
+    0,
+};
+byte sm_private_key[PRIVATE_KEY_SIZE] = {
+    0,
+};
+byte dev_public_key[PUBLIC_KEY_SIZE] = {
+    0,
+};
 
 int osm_pmp_set(uint8_t perm)
 {
@@ -41,7 +51,7 @@ int smm_init()
 {
   int region = -1;
   int ret = pmp_region_init_atomic(SMM_BASE, SMM_SIZE, PMP_PRI_TOP, &region, 0);
-  if(ret)
+  if (ret)
     return -1;
 
   return region;
@@ -51,13 +61,13 @@ int osm_init()
 {
   int region = -1;
   int ret = pmp_region_init_atomic(0, -1UL, PMP_PRI_BOTTOM, &region, 1);
-  if(ret)
+  if (ret)
     return -1;
 
   return region;
 }
 
-void sm_sign(void* signature, const void* data, size_t len)
+void sm_sign(void *signature, const void *data, size_t len)
 {
   sign(signature, data, len, sm_public_key, sm_private_key);
 }
@@ -91,9 +101,40 @@ void sm_copy_key()
 
 void sm_print_hash()
 {
-  for (int i=0; i<MDSIZE; i++)
+  for (int i = 0; i < MDSIZE; i++)
   {
-    sbi_printf("%02x", (char) sm_hash[i]);
+    sbi_printf("%02x", (char)sm_hash[i]);
+  }
+  sbi_printf("\n");
+}
+
+void sm_print_keys()
+{
+  sbi_printf("[SM] SM Signature:\n");
+  for (int i = 0; i < SIGNATURE_SIZE; i++)
+  {
+    sbi_printf("%02x", (char)sm_signature[i]);
+  }
+  sbi_printf("\n");
+
+  sbi_printf("[SM] SM Public Key:\n");
+  for (int i = 0; i < PUBLIC_KEY_SIZE; i++)
+  {
+    sbi_printf("%02x", (char)sm_public_key[i]);
+  }
+  sbi_printf("\n");
+
+  sbi_printf("[SM] SM Private Key:\n");
+  for (int i = 0; i < PRIVATE_KEY_SIZE; i++)
+  {
+    sbi_printf("%02x", (char)sm_private_key[i]);
+  }
+  sbi_printf("\n");
+
+  sbi_printf("[SM] Dev Public Key:\n");
+  for (int i = 0; i < PUBLIC_KEY_SIZE; i++)
+  {
+    sbi_printf("%02x", (char)dev_public_key[i]);
   }
   sbi_printf("\n");
 }
@@ -101,51 +142,55 @@ void sm_print_hash()
 /*
 void sm_print_cert()
 {
-	int i;
+  int i;
 
-	printm("Booting from Security Monitor\n");
-	printm("Size: %d\n", sanctum_sm_size[0]);
+  printm("Booting from Security Monitor\n");
+  printm("Size: %d\n", sanctum_sm_size[0]);
 
-	printm("============ PUBKEY =============\n");
-	for(i=0; i<8; i+=1)
-	{
-		printm("%x",*((int*)sanctum_dev_public_key+i));
-		if(i%4==3) printm("\n");
-	}
-	printm("=================================\n");
+  printm("============ PUBKEY =============\n");
+  for(i=0; i<8; i+=1)
+  {
+    printm("%x",*((int*)sanctum_dev_public_key+i));
+    if(i%4==3) printm("\n");
+  }
+  printm("=================================\n");
 
-	printm("=========== SIGNATURE ===========\n");
-	for(i=0; i<16; i+=1)
-	{
-		printm("%x",*((int*)sanctum_sm_signature+i));
-		if(i%4==3) printm("\n");
-	}
-	printm("=================================\n");
+  printm("=========== SIGNATURE ===========\n");
+  for(i=0; i<16; i+=1)
+  {
+    printm("%x",*((int*)sanctum_sm_signature+i));
+    if(i%4==3) printm("\n");
+  }
+  printm("=================================\n");
 }
 */
 
 void sm_init(bool cold_boot)
 {
-	// initialize SMM
-  if (cold_boot) {
+  // initialize SMM
+  if (cold_boot)
+  {
     /* only the cold-booting hart will execute these */
     sbi_printf("[SM] Initializing ... hart [%lx]\n", csr_read(mhartid));
 
     sbi_ecall_register_extension(&ecall_keystone_enclave);
 
     sm_region_id = smm_init();
-    if(sm_region_id < 0) {
+    if (sm_region_id < 0)
+    {
       sbi_printf("[SM] intolerable error - failed to initialize SM memory");
       sbi_hart_hang();
     }
 
     os_region_id = osm_init();
-    if(os_region_id < 0) {
+    if (os_region_id < 0)
+    {
       sbi_printf("[SM] intolerable error - failed to initialize OS memory");
       sbi_hart_hang();
     }
 
-    if (platform_init_global_once() != SBI_ERR_SM_ENCLAVE_SUCCESS) {
+    if (platform_init_global_once() != SBI_ERR_SM_ENCLAVE_SUCCESS)
+    {
       sbi_printf("[SM] platform global init fatal error");
       sbi_hart_hang();
     }
@@ -171,7 +216,8 @@ void sm_init(bool cold_boot)
   pmp_set_keystone(os_region_id, PMP_ALL_PERM);
 
   /* Fire platform specific global init */
-  if (platform_init_global() != SBI_ERR_SM_ENCLAVE_SUCCESS) {
+  if (platform_init_global() != SBI_ERR_SM_ENCLAVE_SUCCESS)
+  {
     sbi_printf("[SM] platform global init fatal error");
     sbi_hart_hang();
   }
@@ -179,6 +225,12 @@ void sm_init(bool cold_boot)
   sbi_printf("[SM] Keystone security monitor has been initialized!\n");
 
   sm_print_hash();
+
+  sbi_printf("[SM] DEBUG BEGIN\n");
+
+  sm_print_keys();
+
+  sbi_printf("[SM] DEBUG END\n");
 
   return;
   // for debug
