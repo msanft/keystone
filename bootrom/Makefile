@@ -27,6 +27,7 @@ clean:
 bootrom_sources = \
 	./bootloader.S \
 	./bootloader.c \
+	./tpm/*.c \
 	./ed25519/*.c \
 	./sha3/*.c
 
@@ -35,4 +36,3 @@ bootrom_sources = \
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary --only-section=.text $< $@;
-
