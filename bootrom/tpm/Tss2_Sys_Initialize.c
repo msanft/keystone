@@ -14,7 +14,7 @@
 #include <inttypes.h>
 
 #include "tss2_common.h"
-#include "tpm/tss2_tpm2_types.h"
+#include "tss2_tpm2_types.h"
 #include "tss2_mu.h"
 
 #include "sysapi_util.h"
