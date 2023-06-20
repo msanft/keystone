@@ -27,7 +27,6 @@ clean:
 bootrom_sources = \
 	./bootloader.S \
 	./bootloader.c \
-	./tpm/* \
 	./ed25519/*.c \
 	./sha3/*.c
 
