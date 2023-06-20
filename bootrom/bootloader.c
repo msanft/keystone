@@ -26,8 +26,6 @@
   provides memcpy, memset
 */
 
-#include "tpm/tss2_sys.h"
-
 typedef unsigned char byte;
 
 // Sanctum header fields in DRAM
@@ -107,13 +105,13 @@ void bootloader()
   memset((void *)sanctum_dev_secret_key, 0, sizeof(*sanctum_dev_secret_key));
 
   // TPM Test
-  TSS2_RC rc;
-  TSS2_SYS_CONTEXT *sys_ctx;
-  size_t ctx_size;
-  TSS2_ABI_VERSION abi_version = TSS2_ABI_VERSION_CURRENT;
-  TSS2_TCTI_CONTEXT *tcti_ctx;
+  // TSS2_RC rc;
+  // TSS2_SYS_CONTEXT *sys_ctx;
+  // size_t ctx_size;
+  // TSS2_ABI_VERSION abi_version = TSS2_ABI_VERSION_CURRENT;
+  // TSS2_TCTI_CONTEXT *tcti_ctx;
 
-  rc = Tss2_Sys_Initialize(sys_ctx, ctx_size, tcti_ctx, &abi_version);
+  // rc = Tss2_Sys_Initialize(sys_ctx, ctx_size, tcti_ctx, &abi_version);
 
   // caller will clean core state and memory (including the stack), and boot.
   return;
