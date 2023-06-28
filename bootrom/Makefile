@@ -5,13 +5,10 @@ OBJCOPY ?= riscv64-unknown-elf-objcopy
 
 CFLAGS = \
 	-march=$(march) -mcmodel=medany -mabi=$(mabi) \
-	-std=gnu11 \
+	-nostdlib -nostartfiles -fno-common -std=gnu11 \
 	-static \
 	-fPIC \
-	-O0 -Wall
-# O0 needs to be here to prevent the compiler from optimizing the
-# jitter entropy source
-
+	-O2 -Wall
 O ?=.
 
 # ^ consider taking out -g -Og and putting in -O2
@@ -31,12 +28,11 @@ bootrom_sources = \
 	./bootloader.S \
 	./bootloader.c \
 	./ed25519/*.c \
-	./sha3/*.c \
-	./jent/*.c
-
+	./sha3/*.c
 
 %.elf: $(bootrom_sources) bootloader.lds
 	$(CC) $(CFLAGS) -I./ -L . -T bootloader.lds -o $@ $(bootrom_sources)
 
 %.bin: %.elf
-	$(OBJCOPY) binary --only-section=.text $< $@;
+	$(OBJCOPY) -O binary --only-section=.text $< $@;
+
