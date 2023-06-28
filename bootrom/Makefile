@@ -8,7 +8,10 @@ CFLAGS = \
 	-nostdlib -nostartfiles -fno-common -std=gnu11 \
 	-static \
 	-fPIC \
-	-O2 -Wall
+	-O0 -Wall
+
+# Disable optimizations for jent
+
 O ?=.
 
 # ^ consider taking out -g -Og and putting in -O2
@@ -28,11 +31,11 @@ bootrom_sources = \
 	./bootloader.S \
 	./bootloader.c \
 	./ed25519/*.c \
-	./sha3/*.c
+	./sha3/*.c \
+	./jent/*.c
 
 %.elf: $(bootrom_sources) bootloader.lds
 	$(CC) $(CFLAGS) -I./ -L . -T bootloader.lds -o $@ $(bootrom_sources)
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary --only-section=.text $< $@;
-
