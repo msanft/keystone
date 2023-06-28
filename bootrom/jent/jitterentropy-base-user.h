@@ -57,7 +57,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "string.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -98,19 +98,20 @@
 
 #ifdef __x86_64__
 /* specify 64 bit type since long is 32 bits in LLP64 x86_64 systems */
-# define DECLARE_ARGS(val, low, high)    uint64_t low, high
-# define EAX_EDX_VAL(val, low, high)     ((low) | (high) << 32)
-# define EAX_EDX_RET(val, low, high)     "=a" (low), "=d" (high)
+#define DECLARE_ARGS(val, low, high) uint64_t low, high
+#define EAX_EDX_VAL(val, low, high) ((low) | (high) << 32)
+#define EAX_EDX_RET(val, low, high) "=a"(low), "=d"(high)
 #elif __i386__
-# define DECLARE_ARGS(val, low, high)    unsigned long val
-# define EAX_EDX_VAL(val, low, high)     val
-# define EAX_EDX_RET(val, low, high)     "=A" (val)
+#define DECLARE_ARGS(val, low, high) unsigned long val
+#define EAX_EDX_VAL(val, low, high) val
+#define EAX_EDX_RET(val, low, high) "=A"(val)
 #endif
 
 static inline void jent_get_nstime(uint64_t *out)
 {
 	DECLARE_ARGS(val, low, high);
-	asm volatile("rdtsc" : EAX_EDX_RET(val, low, high));
+	asm volatile("rdtsc"
+				 : EAX_EDX_RET(val, low, high));
 	*out = EAX_EDX_VAL(val, low, high);
 }
 
@@ -118,12 +119,13 @@ static inline void jent_get_nstime(uint64_t *out)
 
 static inline void jent_get_nstime(uint64_t *out)
 {
-        uint64_t ctr_val;
-        /*
-         * Use the system counter for aarch64 (64 bit ARM).
-         */
-        asm volatile("mrs %0, cntvct_el0" : "=r" (ctr_val));
-        *out = ctr_val;
+	uint64_t ctr_val;
+	/*
+	 * Use the system counter for aarch64 (64 bit ARM).
+	 */
+	asm volatile("mrs %0, cntvct_el0"
+				 : "=r"(ctr_val));
+	*out = ctr_val;
 }
 
 #elif defined(__s390x__)
@@ -166,7 +168,10 @@ static inline void jent_get_nstime(uint64_t *out)
 
 	uint8_t clk[16];
 
-	asm volatile("stcke %0" : "=Q" (clk) : : "cc");
+	asm volatile("stcke %0"
+				 : "=Q"(clk)
+				 :
+				 : "cc");
 
 	/* s390x is big-endian, so just perfom a byte-by-byte copy */
 	*out = *(uint64_t *)(clk + 1);
@@ -180,7 +185,7 @@ static inline void jent_get_nstime(uint64_t *out)
  * mfspr.  special processor registers 268 and 269 are the
  * ones we want.
  */
- /* #define POWER_PC_USE_NEW_INSTRUCTIONS */
+/* #define POWER_PC_USE_NEW_INSTRUCTIONS */
 
 /* taken from http://www.ecrypt.eu.org/ebats/cpucycles.html */
 
@@ -191,15 +196,13 @@ static inline void jent_get_nstime(uint64_t *out)
 	unsigned long newhigh;
 	uint64_t result;
 #ifdef POWER_PC_USE_NEW_INSTRUCTIONS /* Newer PPC CPUs do not support mftbu/mftb */
-    asm volatile(
-        "Lcpucycles:mfspr %0, 269;mfspr %1, 268;mfspr %2, 269;cmpw %0,%2;bne Lcpucycles"
-		: "=r" (high), "=r" (low), "=r" (newhigh)
-		);
+	asm volatile(
+		"Lcpucycles:mfspr %0, 269;mfspr %1, 268;mfspr %2, 269;cmpw %0,%2;bne Lcpucycles"
+		: "=r"(high), "=r"(low), "=r"(newhigh));
 #else
-    asm volatile(
+	asm volatile(
 		"Lcpucycles:mftbu %0;mftb %1;mftbu %2;cmpw %0,%2;bne Lcpucycles"
-		: "=r" (high), "=r" (low), "=r" (newhigh)
-		);
+		: "=r"(high), "=r"(low), "=r"(newhigh));
 #endif
 	result = high;
 	result <<= 32;
@@ -213,9 +216,9 @@ static inline void jent_get_nstime(uint64_t *out)
 {
 	/* OSX does not have clock_gettime -- taken from
 	 * http://developer.apple.com/library/mac/qa/qa1398/_index.html */
-# ifdef __MACH__
+#ifdef __MACH__
 	*out = mach_absolute_time();
-# elif _AIX
+#elif _AIX
 	/* clock_gettime() on AIX returns a timer value that increments in
 	 * steps of 1000
 	 */
@@ -226,7 +229,7 @@ static inline void jent_get_nstime(uint64_t *out)
 	tmp = tmp << 32;
 	tmp = tmp | aixtime.tb_low;
 	*out = tmp;
-# else /* __MACH__ */
+#else  /* __MACH__ */
 	/* we could use CLOCK_MONOTONIC(_RAW), but with CLOCK_REALTIME
 	 * we get some nice extra entropy once in a while from the NTP actions
 	 * that we want to use as well... though, we do not rely on that
@@ -239,7 +242,7 @@ static inline void jent_get_nstime(uint64_t *out)
 		tmp = tmp + (uint64_t)time.tv_nsec;
 	}
 	*out = tmp;
-# endif /* __MACH__ */
+#endif /* __MACH__ */
 }
 
 #endif /* (__x86_64__) || (__i386__) || (__aarch64__) */
@@ -262,7 +265,7 @@ static inline void *jent_zalloc(size_t len)
 	 * we do not set CONFIG_CRYPTO_CPU_JITTERENTROPY_SECURE_MEMORY */
 	tmp = malloc(len);
 #endif /* LIBGCRYPT */
-	if(NULL != tmp)
+	if (NULL != tmp)
 		memset(tmp, 0, len);
 	return tmp;
 }
@@ -273,8 +276,8 @@ static inline void jent_zfree(void *ptr, unsigned int len)
 	memset(ptr, 0, len);
 	gcry_free(ptr);
 #elif defined(AWSLC)
-    /* AWS-LC stores the length of allocated memory internally and automatically wipes it in OPENSSL_free */
-	(void) len;
+	/* AWS-LC stores the length of allocated memory internally and automatically wipes it in OPENSSL_free */
+	(void)len;
 	OPENSSL_free(ptr);
 #elif defined(OPENSSL)
 	OPENSSL_cleanse(ptr, len);
@@ -302,8 +305,10 @@ static inline int jent_fips_enabled(void)
 	char buf[2] = "0";
 	int fd = 0;
 
-	if ((fd = open(FIPS_MODE_SWITCH_FILE, O_RDONLY)) >= 0) {
-		while (read(fd, buf, sizeof(buf)) < 0 && errno == EINTR);
+	if ((fd = open(FIPS_MODE_SWITCH_FILE, O_RDONLY)) >= 0)
+	{
+		while (read(fd, buf, sizeof(buf)) < 0 && errno == EINTR)
+			;
 		close(fd);
 	}
 	if (buf[0] == '1')
@@ -319,7 +324,10 @@ static inline void jent_memset_secure(void *s, size_t n)
 	OPENSSL_cleanse(s, n);
 #else
 	memset(s, 0, n);
-	__asm__ __volatile__("" : : "r" (s) : "memory");
+	__asm__ __volatile__(""
+						 :
+						 : "r"(s)
+						 : "memory");
 #endif
 }
 
@@ -342,9 +350,9 @@ static inline long jent_ncpu(void)
 
 #ifdef __linux__
 
-# if defined(_SC_LEVEL1_DCACHE_SIZE) &&					\
-     defined(_SC_LEVEL2_CACHE_SIZE) &&					\
-     defined(_SC_LEVEL3_CACHE_SIZE)
+#if defined(_SC_LEVEL1_DCACHE_SIZE) && \
+	defined(_SC_LEVEL2_CACHE_SIZE) &&  \
+	defined(_SC_LEVEL3_CACHE_SIZE)
 
 static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 {
@@ -353,7 +361,7 @@ static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 	*l3 = sysconf(_SC_LEVEL3_CACHE_SIZE);
 }
 
-# else
+#else
 
 static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 {
@@ -364,7 +372,8 @@ static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 	int fd = 0;
 
 	/* Iterate over all caches */
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++)
+	{
 		unsigned int shift = 0;
 		char *ext;
 
@@ -374,11 +383,12 @@ static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 		 */
 		memset(buf, 0, sizeof(buf));
 		snprintf(file, sizeof(file), "%s/index%u/type",
-			 JENT_SYSFS_CACHE_DIR, i);
+				 JENT_SYSFS_CACHE_DIR, i);
 		fd = open(file, O_RDONLY);
 		if (fd < 0)
 			continue;
-		while (read(fd, buf, sizeof(buf)) < 0 && errno == EINTR);
+		while (read(fd, buf, sizeof(buf)) < 0 && errno == EINTR)
+			;
 		close(fd);
 		buf[sizeof(buf) - 1] = '\0';
 
@@ -388,22 +398,27 @@ static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 		/* Get size of cache */
 		memset(buf, 0, sizeof(buf));
 		snprintf(file, sizeof(file), "%s/index%u/size",
-			 JENT_SYSFS_CACHE_DIR, i);
+				 JENT_SYSFS_CACHE_DIR, i);
 
 		fd = open(file, O_RDONLY);
 		if (fd < 0)
 			continue;
-		while (read(fd, buf, sizeof(buf)) < 0 && errno == EINTR);
+		while (read(fd, buf, sizeof(buf)) < 0 && errno == EINTR)
+			;
 		close(fd);
 		buf[sizeof(buf) - 1] = '\0';
 
 		ext = strstr(buf, "K");
-		if (ext) {
+		if (ext)
+		{
 			shift = 10;
 			*ext = '\0';
-		} else {
+		}
+		else
+		{
 			ext = strstr(buf, "M");
-			if (ext) {
+			if (ext)
+			{
 				shift = 20;
 				*ext = '\0';
 			}
@@ -418,7 +433,8 @@ static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 			*l1 = val;
 		else if (!*l2)
 			*l2 = val;
-		else {
+		else
+		{
 			*l3 = val;
 			break;
 		}
@@ -426,14 +442,15 @@ static inline void jent_get_cachesize(long *l1, long *l2, long *l3)
 #undef JENT_SYSFS_CACHE_DIR
 }
 
-# endif
+#endif
 
 static inline uint32_t jent_cache_size_roundup(void)
 {
 	static int checked = 0;
 	static uint32_t cache_size = 0;
 
-	if (!checked) {
+	if (!checked)
+	{
 		long l1 = 0, l2 = 0, l3 = 0;
 
 		jent_get_cachesize(&l1, &l2, &l3);
@@ -488,7 +505,7 @@ static inline void jent_yield(void)
 
 static inline uint64_t rol64(uint64_t x, int n)
 {
-	return ( (x << (n&(64-1))) | (x >> ((64-n)&(64-1))) );
+	return ((x << (n & (64 - 1))) | (x >> ((64 - n) & (64 - 1))));
 }
 
 #endif /* _JITTERENTROPY_BASE_USER_H */
