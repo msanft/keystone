@@ -8,7 +8,7 @@ CFLAGS = \
 	-nostdlib -nostartfiles -fno-common -std=gnu11 \
 	-static \
 	-fPIC \
-	-O0 -Wall
+	-O0 -Wall -lrt
 # O0 needs to be here to prevent the compiler from optimizing the
 # jitter entropy source
 
