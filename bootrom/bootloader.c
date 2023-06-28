@@ -102,14 +102,14 @@ void bootloader()
   ed25519_create_keypair(sanctum_sm_public_key, sanctum_sm_secret_key, scratchpad);
 
   // Endorse the SM
-  memcpy(scratchpad, sanctum_sm_hash, 64);
-  memcpy(scratchpad + 64, sanctum_sm_public_key, 32);
+  keystone_memcpy(scratchpad, sanctum_sm_hash, 64);
+  keystone_memcpy(scratchpad + 64, sanctum_sm_public_key, 32);
   // Sign (H_SM, PK_SM) with SK_D
   ed25519_sign(sanctum_sm_signature, scratchpad, 64 + 32, sanctum_dev_public_key, sanctum_dev_secret_key);
 
   // Clean up
   // Erase SK_D
-  memset((void *)sanctum_dev_secret_key, 0, sizeof(*sanctum_dev_secret_key));
+  keystone_memcpy((void *)sanctum_dev_secret_key, 0, sizeof(*sanctum_dev_secret_key));
 
   // caller will clean core state and memory (including the stack), and boot.
   return;
