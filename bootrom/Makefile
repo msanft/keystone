@@ -8,7 +8,10 @@ CFLAGS = \
 	-nostdlib -nostartfiles -fno-common -std=gnu11 \
 	-static \
 	-fPIC \
-	-O2 -Wall
+	-O0 -Wall
+# O0 needs to be here to prevent the compiler from optimizing the
+# jitter entropy source
+
 O ?=.
 
 # ^ consider taking out -g -Og and putting in -O2
@@ -31,10 +34,9 @@ bootrom_sources = \
 	./sha3/*.c \
 	./jent/*.c
 
-# O0 needs to be here to prevent the compiler from optimizing the
-# jitter entropy source
+
 %.elf: $(bootrom_sources) bootloader.lds
-	$(CC) $(CFLAGS) -I./ -L . -T -O0 bootloader.lds -o $@ $(bootrom_sources)
+	$(CC) $(CFLAGS) -I./ -L . -T bootloader.lds -o $@ $(bootrom_sources)
 
 %.bin: %.elf
-	$(OBJCOPY) -O0 binary --only-section=.text $< $@;
+	$(OBJCOPY) binary --only-section=.text $< $@;
