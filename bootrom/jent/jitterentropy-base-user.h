@@ -49,8 +49,6 @@
  * Compilation for OpenSSL    #define OPENSSL
  */
 
-#define _POSIX_C_SOURCE 200809L
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
