@@ -5,7 +5,7 @@ OBJCOPY ?= riscv64-unknown-elf-objcopy
 
 CFLAGS = \
 	-march=$(march) -mcmodel=medany -mabi=$(mabi) \
-	-nostdlib -nostartfiles -fno-common -std=gnu11 \
+	-std=gnu11 \
 	-static \
 	-fPIC \
 	-O0 -Wall
