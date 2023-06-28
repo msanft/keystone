@@ -21,7 +21,7 @@
   types: sha3_context
 */
 
-#include "string.h"
+#include <string.h>
 /*
   provides memcpy, memset
 */
@@ -74,7 +74,7 @@ void bootloader() {
      keypair */
   // TEST Device key
   #include "use_test_keys.h"
-  
+
   // Derive {SK_D, PK_D} (device keys) from a 32 B random seed
   //ed25519_create_keypair(sanctum_dev_public_key, sanctum_dev_secret_key, scratchpad);
 
