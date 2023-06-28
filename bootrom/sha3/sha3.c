@@ -100,7 +100,7 @@ void sha3_keccakf(uint64_t st[25])
 
 // Initialize the context for SHA3
 
-int sha3_init(sha3_ctx_t *c, int mdlen)
+int keystone_sha3_init(sha3_ctx_t *c, int mdlen)
 {
     int i;
 
@@ -115,7 +115,7 @@ int sha3_init(sha3_ctx_t *c, int mdlen)
 
 // update state with more data
 
-int sha3_update(sha3_ctx_t *c, const void *data, size_t len)
+int keystone_sha3_update(sha3_ctx_t *c, const void *data, size_t len)
 {
     size_t i;
     int j;
@@ -135,7 +135,7 @@ int sha3_update(sha3_ctx_t *c, const void *data, size_t len)
 
 // finalize and output a hash
 
-int sha3_final(void *md, sha3_ctx_t *c)
+int keystone_sha3_final(void *md, sha3_ctx_t *c)
 {
     int i;
 
@@ -149,17 +149,3 @@ int sha3_final(void *md, sha3_ctx_t *c)
 
     return 1;
 }
-
-// compute a SHA-3 hash (md) of given byte length from "in"
-
-void *sha3(const void *in, size_t inlen, void *md, int mdlen)
-{
-    sha3_ctx_t sha3;
-
-    sha3_init(&sha3, mdlen);
-    sha3_update(&sha3, in, inlen);
-    sha3_final(md, &sha3);
-
-    return md;
-}
-

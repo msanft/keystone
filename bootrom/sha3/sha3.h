@@ -31,8 +31,4 @@ void sha3_keccakf(uint64_t st[25]);
 int keystone_sha3_init(sha3_ctx_t *c, int mdlen);    // mdlen = hash output in bytes
 int keystone_sha3_update(sha3_ctx_t *c, const void *data, size_t len);
 int keystone_sha3_final(void *md, sha3_ctx_t *c);    // digest goes to md
-
-// compute a sha3 hash (md) of given byte length from "in"
-void *sha3(const void *in, size_t inlen, void *md, int mdlen);
-
 #endif
