@@ -59,12 +59,12 @@ int ed25519_verify(const unsigned char *signature, const unsigned char *message,
         return 0;
     }
 
-    sha3_init(&hash, 64);
-    sha3_update(&hash, signature, 32);
-    sha3_update(&hash, public_key, 32);
-    sha3_update(&hash, message, message_len);
-    sha3_final(h, &hash);
-    
+    keystone_sha3_init(&hash, 64);
+    keystone_sha3_update(&hash, signature, 32);
+    keystone_sha3_update(&hash, public_key, 32);
+    keystone_sha3_update(&hash, message, message_len);
+    keystone_sha3_final(h, &hash);
+
     sc_reduce(h);
     ge_double_scalarmult_vartime(&R, h, &A, signature + 32);
     ge_tobytes(checker, &R);
