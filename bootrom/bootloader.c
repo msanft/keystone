@@ -26,6 +26,10 @@
   provides memcpy, memset
 */
 
+#include "jent/jitterentropy.h"
+/*
+  provides entropy source
+*/
 
 typedef unsigned char byte;
 
@@ -39,14 +43,9 @@ extern byte sanctum_sm_secret_key[64];
 extern byte sanctum_sm_signature[64];
 #define DRAM_BASE 0x80000000
 
-/* Update this to generate valid entropy for target platform*/
-inline byte random_byte(unsigned int i) {
-#warning Bootloader does not have entropy source, keys are for TESTING ONLY
-  return 0xac + (0xdd ^ i);
-}
-
-void bootloader() {
-	//*sanctum_sm_size = 0x200;
+void bootloader()
+{
+  //*sanctum_sm_size = 0x200;
   // Reserve stack space for secrets
   byte scratchpad[128];
   sha3_ctx_t hash_ctx;
@@ -62,25 +61,35 @@ void bootloader() {
    * that do not provide such a source must gather their own
    * entropy. See the Keystone documentation for further
    * discussion. For testing purposes, we have no entropy generation.
-  */
+   */
 
   // Create a random seed for keys and nonces from TRNG
-  for (unsigned int i=0; i<32; i++) {
-    scratchpad[i] = random_byte(i);
+  if (jent_entropy_init() == 0)
+  {
+    for (unsigned int i = 0; i < 32; i++)
+    {
+      struct rand_data *ec = jent_entropy_collector_alloc(1, 0);
+      if (ec)
+      {
+        ssize_t rndLen = jent_read_entropy(ec, (char *)scratchpad, sizeof(scratchpad));
+        if (rndLen > 0)
+          jent_entropy_collector_free(ec);
+      }
+    }
   }
 
-  /* On a real device, the platform must provide a secure root device
-     keystore. For testing purposes we hardcode a known private/public
-     keypair */
-  // TEST Device key
-  #include "use_test_keys.h"
-  
+/* On a real device, the platform must provide a secure root device
+   keystore. For testing purposes we hardcode a known private/public
+   keypair */
+// TEST Device key
+#include "use_test_keys.h"
+
   // Derive {SK_D, PK_D} (device keys) from a 32 B random seed
-  //ed25519_create_keypair(sanctum_dev_public_key, sanctum_dev_secret_key, scratchpad);
+  // ed25519_create_keypair(sanctum_dev_public_key, sanctum_dev_secret_key, scratchpad);
 
   // Measure SM
   sha3_init(&hash_ctx, 64);
-  sha3_update(&hash_ctx, (void*)DRAM_BASE, sanctum_sm_size);
+  sha3_update(&hash_ctx, (void *)DRAM_BASE, sanctum_sm_size);
   sha3_final(sanctum_sm_hash, &hash_ctx);
 
   // Combine SK_D and H_SM via a hash
@@ -100,7 +109,7 @@ void bootloader() {
 
   // Clean up
   // Erase SK_D
-  memset((void*)sanctum_dev_secret_key, 0, sizeof(*sanctum_dev_secret_key));
+  memset((void *)sanctum_dev_secret_key, 0, sizeof(*sanctum_dev_secret_key));
 
   // caller will clean core state and memory (including the stack), and boot.
   return;
