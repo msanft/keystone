@@ -37,4 +37,4 @@ bootrom_sources = \
 	$(CC) $(CFLAGS) -I./ -L . -T -O0 bootloader.lds -o $@ $(bootrom_sources)
 
 %.bin: %.elf
-	$(OBJCOPY) -O binary --only-section=.text $< $@;
+	$(OBJCOPY) -O0 binary --only-section=.text $< $@;
