@@ -162,9 +162,9 @@ void *keystone_sha3(const void *in, size_t inlen, void *md, int mdlen)
 {
     sha3_ctx_t sha3;
 
-    sha3_init(&sha3, mdlen);
-    sha3_update(&sha3, in, inlen);
-    sha3_final(md, &sha3);
+    keystone_sha3_init(&sha3, mdlen);
+    keystone_sha3_update(&sha3, in, inlen);
+    keystone_sha3_final(md, &sha3);
 
     return md;
 }
