@@ -9,7 +9,6 @@ CFLAGS = \
 	-static \
 	-fPIC \
 	-O0 -Wall
-
 # Disable optimizations for jent
 
 O ?=.
@@ -30,6 +29,7 @@ clean:
 bootrom_sources = \
 	./bootloader.S \
 	./bootloader.c \
+	./string.c \
 	./ed25519/*.c \
 	./sha3/*.c \
 	./jent/*.c

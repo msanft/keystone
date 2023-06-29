@@ -21,11 +21,6 @@
   types: sha3_context
 */
 
-#include <string.h>
-/*
-  provides memcpy, memset
-*/
-
 #include "jent/jitterentropy.h"
 
 typedef unsigned char byte;
@@ -72,7 +67,8 @@ void bootloader()
   {
     for (unsigned int i = 0; i < 32; i++)
     {
-      struct rand_data *ec = jent_entropy_collector_alloc(1, 0);
+      unsigned int flags = JENT_DISABLE_MEMORY_ACCESS;
+      struct rand_data *ec = jent_entropy_collector_alloc(0, flags);
       if (ec)
       {
         ssize_t rndLen = jent_read_entropy(ec, (char *)scratchpad, sizeof(scratchpad));
@@ -92,16 +88,16 @@ void bootloader()
   // ed25519_create_keypair(sanctum_dev_public_key, sanctum_dev_secret_key, scratchpad);
 
   // Measure SM
-  sha3_init(&hash_ctx, 64);
-  sha3_update(&hash_ctx, (void *)DRAM_BASE, sanctum_sm_size);
-  sha3_final(sanctum_sm_hash, &hash_ctx);
+  keystone_sha3_init(&hash_ctx, 64);
+  keystone_sha3_update(&hash_ctx, (void *)DRAM_BASE, sanctum_sm_size);
+  keystone_sha3_final(sanctum_sm_hash, &hash_ctx);
 
   // Combine SK_D and H_SM via a hash
   // sm_key_seed <-- H(SK_D, H_SM), truncate to 32B
-  sha3_init(&hash_ctx, 64);
-  sha3_update(&hash_ctx, sanctum_dev_secret_key, sizeof(*sanctum_dev_secret_key));
-  sha3_update(&hash_ctx, sanctum_sm_hash, sizeof(*sanctum_sm_hash));
-  sha3_final(scratchpad, &hash_ctx);
+  keystone_sha3_init(&hash_ctx, 64);
+  keystone_sha3_update(&hash_ctx, sanctum_dev_secret_key, sizeof(*sanctum_dev_secret_key));
+  keystone_sha3_update(&hash_ctx, sanctum_sm_hash, sizeof(*sanctum_sm_hash));
+  keystone_sha3_final(scratchpad, &hash_ctx);
   // Derive {SK_D, PK_D} (device keys) from the first 32 B of the hash (NIST endorses SHA512 truncation as safe)
   ed25519_create_keypair(sanctum_sm_public_key, sanctum_sm_secret_key, scratchpad);
 
