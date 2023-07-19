@@ -36,7 +36,7 @@ extern byte sanctum_sm_signature[64];
 #define DRAM_BASE 0x80000000
 
 /* Update this to generate valid entropy for target platform*/
-inline byte random_byte(unsigned int i)
+static inline byte random_byte(unsigned int i)
 {
 #warning Bootloader does not have entropy source, keys are for TESTING ONLY
   return 0xac + (0xdd ^ i);
@@ -63,20 +63,23 @@ void bootloader()
    */
 
   // Create a random seed for keys and nonces from TRNG
-  if (jent_entropy_init() == 0)
-  {
+  // if (jent_entropy_init() == 0)
+  // {
     for (unsigned int i = 0; i < 32; i++)
     {
-      unsigned int flags = JENT_DISABLE_MEMORY_ACCESS;
-      struct rand_data *ec = jent_entropy_collector_alloc(0, flags);
-      if (ec)
-      {
-        ssize_t rndLen = jent_read_entropy(ec, (char *)scratchpad, sizeof(scratchpad));
-        if (rndLen > 0)
-          jent_entropy_collector_free(ec);
-      }
+      // unsigned int flags = JENT_DISABLE_MEMORY_ACCESS;
+      // struct rand_data *ec = jent_entropy_collector_alloc(0, flags);
+      // if (ec)
+      // {
+      //   ssize_t rndLen = jent_read_entropy(ec, (char *)scratchpad, sizeof(scratchpad));
+      //   if (rndLen > 0)
+      //     jent_entropy_collector_free(ec);
+      // }
+      scratchpad[i] = random_byte(i);
     }
-  }
+  // } else {
+  //   return;
+  // }
 
 /* On a real device, the platform must provide a secure root device
    keystore. For testing purposes we hardcode a known private/public

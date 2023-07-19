@@ -85,14 +85,6 @@
 #include <openssl/crypto.h>
 #endif
 
-#ifdef __MACH__
-#include <assert.h>
-#include <CoreServices/CoreServices.h>
-#include <mach/mach.h>
-#include <mach/mach_time.h>
-#include <unistd.h>
-#endif
-
 #if (__x86_64__) || (__i386__)
 /* Support rdtsc read on 64-bit and 32-bit x86 architectures */
 
@@ -231,13 +223,12 @@ static inline void jent_get_nstime(uint64_t *out)
 	 * we get some nice extra entropy once in a while from the NTP actions
 	 * that we want to use as well... though, we do not rely on that
 	 * extra little entropy */
+
+	/* TODO: RISC-V clock here */
 	uint64_t tmp = 0;
 	struct timespec time;
-	if (clock_gettime(CLOCK_REALTIME, &time) == 0)
-	{
-		tmp = ((uint64_t)time.tv_sec & 0xFFFFFFFF) * 1000000000UL;
-		tmp = tmp + (uint64_t)time.tv_nsec;
-	}
+	tmp = ((uint64_t)time.tv_sec & 0xFFFFFFFF) * 1000000000UL;
+	tmp = tmp + (uint64_t)time.tv_nsec;
 	*out = tmp;
 # endif /* __MACH__ */
 }
