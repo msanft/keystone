@@ -118,7 +118,7 @@ uintptr_t dispatch_edgecall_ocall( unsigned long call_id,
      value passed in the edge_call return data. We need to somehow
      validate these. The size in the edge_call return data is larger
      almost certainly.*/
-  copy_to_user(return_buffer, (void*)return_ptr, return_len);
+  copy_to_user(return_buffer, (void*)return_ptr, ret_len_untrusted > return_len ? return_len : ret_len_untrusted);
 
   return 0;
 
@@ -250,6 +250,10 @@ void handle_syscall(struct encl_ctx* ctx)
 
   case(SYS_munmap):
     ret = syscall_munmap((void*) arg0, (size_t)arg1);
+    break;
+
+  case(SYS_mprotect):
+    ret = syscall_mprotect((void *) arg0, (size_t) arg1, (int) arg2);
     break;
 
   case(SYS_exit):

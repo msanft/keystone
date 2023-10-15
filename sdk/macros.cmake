@@ -10,7 +10,7 @@ macro(global_set Name Value)
 endmacro()
 
 macro(use_riscv_toolchain bits)
-  set(cross_compile riscv${bits}-unknown-linux-gnu-)
+  set(cross_compile riscv${bits}-buildroot-linux-gnu-)
   execute_process(
     COMMAND which ${cross_compile}gcc
     OUTPUT_VARIABLE CROSSCOMPILE
@@ -21,12 +21,15 @@ macro(use_riscv_toolchain bits)
   endif()
 
   string(STRIP ${CROSSCOMPILE} CROSSCOMPILE)
-  string(REPLACE "gcc" "" CROSSCOMPILE ${CROSSCOMPILE})
+  string(LENGTH ${CROSSCOMPILE} CROSSCOMPILE_LEN)
+  math(EXPR CROSSCOMPILE_LEN "${CROSSCOMPILE_LEN} - 3")
+  string(SUBSTRING ${CROSSCOMPILE} 0 ${CROSSCOMPILE_LEN} CROSSCOMPILE)
 
   message(STATUS "Tagret tripplet: ${CROSSCOMPILE}")
 
   set(CC              ${CROSSCOMPILE}gcc)
   set(CXX             ${CROSSCOMPILE}g++)
+  set(AS              ${CROSSCOMPILE}as)
   set(LD              ${CROSSCOMPILE}ld)
   set(AR              ${CROSSCOMPILE}ar)
   set(OBJCOPY         ${CROSSCOMPILE}objcopy)
@@ -34,7 +37,7 @@ macro(use_riscv_toolchain bits)
   set(CFLAGS          "-Wall -Werror")
 
   global_set(CMAKE_C_COMPILER        ${CC}${EXT})
-  global_set(CMAKE_ASM_COMPILER        ${CC}${EXT})
+  global_set(CMAKE_ASM_COMPILER      ${CC}${EXT})
   global_set(CMAKE_CXX_COMPILER      ${CXX}${EXT})
   global_set(CMAKE_LINKER            ${LD}${EXT})
   global_set(CMAKE_AR                ${AR}${EXT})
@@ -84,12 +87,12 @@ macro(add_files FILE_LIST DIRWORK)
 endmacro()
 
 macro(get_runtime_dir var)
-  if("${PROJECT_NAME}" STREQUAL "keystone_sdk")
-    get_filename_component(${var} ../runtime REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
-  elseif("${PROJECT_NAME}" STREQUAL "keystone")
-    get_filename_component(${var} ./runtime REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
+  if (DEFINED ENV{KEYSTONE_RUNTIME})
+    set(${var} $ENV{KEYSTONE_RUNTIME})
+  elseif (DEFINED KEYSTONE_RUNTIME)
+    set(${var} ${KEYSTONE_RUNTIME})
   else()
-    message(FATAL_ERROR "Don't know how to find runtime from current directory" "${CMAKE_SOURCE_DIR}")
+    message(FATAL_ERROR "Dont know how to find the runtime sources")
   endif()
 endmacro()
 
@@ -115,7 +118,7 @@ macro(add_eyrie_runtime target_name plugins) # the files are passed via ${ARGN}
   ExternalProject_Add(eyrie-${target_name}
     PREFIX ${runtime_prefix}
     DOWNLOAD_COMMAND rm -rf ${eyrie_src} && cp -ar ${KEYSTONE_EYRIE_RUNTIME} ${eyrie_src}
-    CMAKE_ARGS "${PLUGIN_FLAGS}" -DEYRIE_SRCDIR=${KEYSTONE_EYRIE_RUNTIME}
+    CMAKE_ARGS "${PLUGIN_FLAGS}" -DEYRIE_SRCDIR=${KEYSTONE_EYRIE_RUNTIME} -DKEYSTONE_SDK_DIR=${KEYSTONE_SDK_DIR}
     BUILD_IN_SOURCE TRUE
     BUILD_BYPRODUCTS ${eyrie_src}/eyrie-rt ${eyrie_src}/.options_log
     INSTALL_COMMAND "")
